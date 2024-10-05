@@ -1,0 +1,11 @@
+[package]
+name = "FreelanceMarketplace"
+version = "0.0.0"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "mainnet" }
+
+[addresses]
+my_addrx = "67a0b9610a3bf37d01c1afe210205182dff24aec562297bc82d7a15d9503c52e"
+job_addrx="0xca10b0176c34f9a8315589ff977645e04497814e9753d21f7d7e7c3d83aa7b57"
+std = "0x1"
