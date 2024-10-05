@@ -7,11 +7,11 @@ import { aptosClient } from "@/utils/aptosClient";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { InputViewFunctionData } from "@aptos-labs/ts-sdk";
 import { isMobile, useWallet } from "@aptos-labs/wallet-adapter-react";
-import { DatePicker, Divider, Form, message, Tag, Typography } from "antd";
+import { DatePicker, Form, message, Tag, Typography } from "antd";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-const { Title, Paragraph } = Typography;
+const { Paragraph } = Typography;
+
 export function CreateCollection() {
   const { account, signAndSubmitTransaction } = useWallet();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -34,7 +34,7 @@ export function CreateCollection() {
     fetchAllJobs();
     fetchAllJobsCreatedBy();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account]);
+  }, [account, jobsCreatedBy, jobs]);
 
   const disabledDateTime = () => {
     const now = moment();
@@ -91,6 +91,34 @@ export function CreateCollection() {
         console.error("Transaction Error:", error);
       }
       console.log("Error creating Job.", error);
+    }
+  };
+
+  const handlePayFreelancer = async (values: Job) => {
+    try {
+      const transaction = await signAndSubmitTransaction({
+        sender: account?.address,
+        data: {
+          function: `${MODULE_ADDRESS}::FreelanceMarketplace::pay_freelancer`,
+          functionArguments: [values.job_id, values.payment_amount],
+        },
+      });
+
+      await aptosClient().waitForTransaction({ transactionHash: transaction.hash });
+      message.success("Payment is Successful!");
+      fetchAllJobs();
+    } catch (error) {
+      if (typeof error === "object" && error !== null && "code" in error && (error as { code: number }).code === 4001) {
+        message.error("Transaction rejected by user.");
+      } else {
+        if (error instanceof Error) {
+          console.error(`Transaction failed: ${error.message}`);
+        } else {
+          console.error("Transaction failed: Unknown error");
+        }
+        console.error("Transaction Error:", error);
+      }
+      console.log("Error Paying Freelancer.", error);
     }
   };
 
@@ -164,8 +192,8 @@ export function CreateCollection() {
   return (
     <>
       <LaunchpadHeader title="Create Job" />
-      <div className="flex flex-col md:flex-row items-start justify-between px-4 py-2 gap-4 max-w-screen-xl mx-auto">
-        <div className="w-full md:w-2/3 flex flex-col gap-y-4 order-2 md:order-1">
+      <div className="flex flex-col items-center justify-center px-4 py-2 gap-4 max-w-screen-xl mx-auto">
+        <div className="w-full flex flex-col gap-y-4">
           <Card>
             <CardHeader>
               <CardDescription>Create Job</CardDescription>
@@ -174,7 +202,7 @@ export function CreateCollection() {
               <Form
                 onFinish={handleCreateJob}
                 labelCol={{
-                  span: 3,
+                  span: 4.04,
                 }}
                 wrapperCol={{
                   span: 100,
@@ -215,19 +243,52 @@ export function CreateCollection() {
 
           <Card>
             <CardHeader>
+              <CardDescription>Pay Freelancer</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form
+                onFinish={handlePayFreelancer}
+                labelCol={{
+                  span: 4.04,
+                }}
+                wrapperCol={{
+                  span: 100,
+                }}
+                layout="horizontal"
+                style={{
+                  maxWidth: 1000,
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "0.5rem",
+                  padding: "1.7rem",
+                }}
+              >
+                <Form.Item label="Job Id" name="job_id" rules={[{ required: true }]}>
+                  <Input placeholder="Enter Job Id" />
+                </Form.Item>
+                <Form.Item label="Payment Amount" name="payment_amount" rules={[{ required: true }]}>
+                  <Input placeholder="Enter Your Amount" />
+                </Form.Item>
+                <Form.Item>
+                  <Button variant="submit" size="lg" className="text-base w-full" type="submit">
+                    Pay Freelancer
+                  </Button>
+                </Form.Item>
+              </Form>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardDescription>Get Jobs Created By You</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="p-2">
                 {jobsCreatedBy.map((job, index) => (
                   <Card key={index} className="mb-6 shadow-lg p-4">
-                    {/* <h4 className="text-xl font-bold mb-2">{job.description}</h4> */}
-                    {/* <p className="text-sm text-gray-500 mb-4">Job ID: {job.job_id}</p> */}
+                    <p className="text-sm text-gray-500 mb-4">Job ID: {job.job_id}</p>
                     <Card style={{ marginTop: 16, padding: 16 }}>
                       {job && (
                         <div>
-                          <Title level={3}>job ID: {job.job_id}</Title>
-                          <Divider />
                           <Paragraph>
                             <strong>Description:</strong> {job.description}
                           </Paragraph>
@@ -285,20 +346,6 @@ export function CreateCollection() {
                   </Card>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="w-full md:w-1/3 order-1 md:order-2">
-          <Card>
-            <CardHeader className="body-md-semibold">Learn More</CardHeader>
-            <CardContent>
-              <Link
-                to="https://github.com/kunaldhongade/aptos-freelance-platform"
-                className="body-sm underline"
-                target="_blank"
-              >
-                Find out more about the Platform
-              </Link>
             </CardContent>
           </Card>
         </div>
