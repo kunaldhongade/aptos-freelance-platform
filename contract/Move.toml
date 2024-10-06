@@ -6,6 +6,6 @@ version = "0.0.0"
 AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework", rev = "mainnet" }
 
 [addresses]
-my_addrx = "f7605b9bbf92993b61aabf16af114fad1eb4b4598e13efb78db6470125f82c30"
+my_addrx = "af12ecd9cf6578db88443a384a2d028e67ecda31cf0f441072d22201da3c0072"
 job_addrx="0xca10b0176c34f9a8315589ff977645e04497814e9753d21f7d7e7c3d83aa7b57"
 std = "0x1"
