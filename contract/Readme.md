@@ -1,115 +1,173 @@
-# Public Opinion Poll Smart Contract
+# Freelance Job Marketplace - Smart Contract
 
-## Table of Contents
+This repository contains the **Freelance Job Marketplace** smart contract developed on the **Aptos Blockchain**. The smart contract facilitates job posting, job acceptance, task completion, and payments between clients and freelancers using the Aptos native token, **APT**.
 
-- [Overview](#overview)
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Smart Contract Structure](#smart-contract-structure)
-- [Usage](#usage)
-- [Events](#events)
-- [Error Codes](#error-codes)
-- [Deployment](#deployment)
-- [License](#license)
+## Key Features
 
-## Overview
+- **Job Posting**: Clients can post jobs with specific descriptions, deadlines, and payment amounts.
+- **Freelancer Interaction**: Freelancers can view available jobs, accept them, and mark jobs as completed.
+- **Secure Payments**: Payments are automatically handled by the contract once the job is completed, and they are done in **APT** (Aptos native coin).
+- **Decentralized**: The entire platform runs on smart contracts, ensuring transparency and trust for both clients and freelancers.
 
-The **Public Opinion Poll** smart contract allows users to create polls, cast votes, and view results in a decentralized manner on the Aptos blockchain. This contract ensures transparency and trust, enabling creators to gather opinions on various topics while maintaining user anonymity through DID strings.
+## Prerequisites
 
-## Features
+Before interacting with the contract, ensure you have the following:
 
-- Create polls with a specified question and multiple options.
-- Vote for options in open polls.
-- View poll results, including total votes per option.
-- Close polls by the creator once they are no longer needed.
-- Emit events for poll creation and voting actions for easy tracking.
+- **Aptos CLI** installed (for deploying and interacting with the contract)
+- **Aptos Account** with test funds on **Devnet** (or Mainnet, if live)
 
-## Getting Started
+## Setup Instructions
 
-To get started with the Public Opinion Poll smart contract, you will need to have the following prerequisites:
+1. **Clone the Repository**
 
-- **Aptos CLI**: Make sure you have the Aptos CLI installed.
-- **Aptos Account**: You need an Aptos account to deploy and interact with the contract.
-
-### Installation
-
-1. Clone the repository:
+   move to the smart contract folder to your local machine:
 
    ```bash
-   git clone https://github.com/kunaldhongade/Aptos-opinion-poll.git
-   cd Aptos-opinion-poll
    cd contract
    ```
 
-2. Install dependencies (if any).
+2. **Install Aptos CLI**
 
-3. Set up your Aptos account by following the instructions provided in the [Aptos documentation](https://aptos.dev/docs).
+   Install the Aptos CLI by following the official [Aptos CLI installation guide](https://aptos.dev/cli-tools/aptos-cli-tool/install-aptos-cli).
 
-## Smart Contract Structure
+3. **Configure the Aptos Network**
 
-The smart contract is structured as follows:
+   Configure the Aptos network by running:
 
-- **Poll**: Represents a single poll with attributes like `id`, `creator`, `question`, `options`, `votes`, and `total_votes`.
-- **PollManager**: Manages the list of polls and tracks the next available poll ID.
-- **Event Handles**: Emits events for tracking poll creation and voting actions.
-
-## Usage
-
-### Creating a Poll
-
-To create a new poll, call the `create_poll` function with the following parameters:
-
-- `question`: A string representing the question for the poll.
-- `options`: An array of strings representing the available options.
-
-### Voting
-
-To vote on a poll, use the `vote` function with the following parameters:
-
-- `did`: The DID string of the voter.
-- `poll_id`: The ID of the poll being voted on.
-- `option_index`: The index of the chosen option.
-
-### Viewing Poll Results
-
-Use the `get_poll_results` function to retrieve the votes and total votes for a specific poll:
-
-- `poll_id`: The ID of the poll.
-
-### Closing a Poll
-
-To close a poll, call the `close_poll` function with:
-
-- `poll_id`: The ID of the poll to be closed.
-
-## Events
-
-The smart contract emits the following events:
-
-- **PollCreatedEvent**: Emitted when a new poll is created.
-- **VoteEvent**: Emitted when a vote is cast.
-
-## Error Codes
-
-The following error codes are defined in the contract:
-
-- `EPOLL_ALREADY_EXISTS`: Poll manager already exists.
-- `EPOLL_NOT_FOUND`: Poll not found.
-- `EPOLL_CLOSED`: Poll is closed.
-- `EALREADY_VOTED`: Voter has already cast their vote.
-- `EINVALID_OPTION`: Invalid voting option selected.
-- `ENOT_POLL_CREATOR`: Only the poll creator can close the poll.
-
-## Deployment
-
-To deploy the smart contract on the Aptos blockchain:
-
-1. Use the Aptos CLI to compile the contract.
-2. Deploy the contract using the following command:
    ```bash
-   aptos move publish --package-dir <path_to_your_package>
+   aptos init
    ```
 
-## License
+   Choose the appropriate network (`devnet`, `testnet`, or `mainnet`) and set up your account.
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+4. **Compile the Contract**
+
+   Compile the contract to the Aptos network using:
+
+   ```bash
+   aptos move compile
+   ```
+
+5. **Deploy the Contract**
+
+   Deploy the contract to the Aptos network using:
+
+   ```bash
+   aptos move publish
+   ```
+
+   This will deploy the smart contract to your Aptos account on the selected network.
+
+## Smart Contract Functions
+
+### 1. **initialize_platform**
+
+Initializes the platform by setting up the job holder and freelancer registry.
+
+```move
+public entry fun initialize_platform(admin: &signer)
+```
+
+### 2. **register_freelancer**
+
+Allows a freelancer to register on the platform.
+
+```move
+public entry fun register_freelancer(freelancer: &signer)
+```
+
+### 3. **post_job**
+
+Clients can post new jobs, providing job details such as description, payment amount, and deadline.
+
+```move
+public entry fun post_job(
+    client: &signer,
+    job_id: u64,
+    description: String,
+    payment_amount: u64,
+    job_deadline: u64
+)
+```
+
+### 4. **accept_job**
+
+Freelancers can accept a job by its job ID.
+
+```move
+public entry fun accept_job(
+    freelancer: &signer,
+    job_id: u64
+)
+```
+
+### 5. **complete_job**
+
+Freelancers mark a job as completed once the task is done.
+
+```move
+public entry fun complete_job(
+    freelancer: &signer,
+    job_id: u64
+)
+```
+
+### 6. **pay_freelancer**
+
+Clients pay freelancers after the job is marked as completed. Payment is in **APT**.
+
+```move
+public entry fun pay_freelancer(
+    client: &signer,
+    job_id: u64,
+    payment_amount: u64
+)
+```
+
+### 7. **view_all_jobs**
+
+Fetches all the jobs posted on the platform.
+
+```move
+#[view]
+public fun view_all_jobs(): vector<Job>
+```
+
+### 8. **view_job_by_id**
+
+Fetches details of a specific job using its job ID.
+
+```move
+#[view]
+public fun view_job_by_id(job_id: u64): Job
+```
+
+### 9. **view_jobs_by_client**
+
+Fetches all jobs posted by a specific client.
+
+```move
+#[view]
+public fun view_jobs_by_client(client: address): vector<Job>
+```
+
+### 10. **view_jobs_by_freelancer**
+
+Fetches all jobs accepted by a freelancer.
+
+```move
+#[view]
+public fun view_jobs_by_freelancer(freelancer: address): vector<Job>
+```
+
+## Security
+
+- Ensure that the contract owner is the only entity able to initialize the platform.
+- Freelancers must be registered before they can accept jobs.
+- Payments are only made after job completion is verified, ensuring fair transactions.
+
+## Conclusion
+
+This smart contract allows for seamless job management and payment solutions between clients and freelancers. It ensures trust and transparency, thanks to the immutable nature of the Aptos blockchain.
+
+If you have any questions about how to interact with the contract or need further assistance, feel free to reach out!

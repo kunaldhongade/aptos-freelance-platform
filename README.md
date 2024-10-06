@@ -1,96 +1,77 @@
-# Public Opinion Poll Frontend
+# Freelance Job Marketplace - Frontend
 
-This project is the frontend interface for the **Public Opinion Poll** smart contract built on the Aptos blockchain. It enables users to create, participate in, and view the results of polls in a decentralized manner. The application is developed using **React** and **TypeScript**, utilizing **Ant Design** for the user interface and **Aptos SDK** for blockchain interactions.
+This is the frontend for the **Freelance Job Marketplace**, where clients can post jobs, and freelancers can apply, accept, and complete tasks, all while managing payments securely on the Aptos blockchain.
 
-## Features
+## Key Features
 
-- **Create Polls**: Users can create new polls by specifying the question and options.
-- **Vote on Polls**: Participants can cast their votes for options in open polls.
-- **View Poll Results**: Users can view the total votes for each option and overall results for the polls.
-- **Close Polls**: Poll creators can close polls once the voting period is over.
-- **Voter Identification**: Votes are associated with users' DID strings for identity verification.
+- **Job Management**: Post new jobs, view job details, and see job status (accepted, completed, etc.).
+- **Freelancer Interaction**: Freelancers can view available jobs, accept tasks, and get paid in APT (Aptos native coin).
+- **Blockchain-Powered**: Payments and job statuses are managed securely using smart contracts on the Aptos blockchain.
 
 ## Prerequisites
 
-Ensure you have the following installed before running the project:
+Before running the project, ensure you have the following installed:
 
-- **Node.js** (v14.x or later)
-- **npm** or **yarn** (for dependency management)
-- **Aptos-compatible wallet** (e.g., Petra Wallet) for interacting with the blockchain
+- **Node.js**: v16 or above
+- **npm**: v7 or above (comes with Node.js)
+- **Aptos Wallet** (such as Petra)
 
-## Wallet Setup
+## Setup Instructions
 
-Make sure your Aptos-compatible wallet is set to **Devnet** for development purposes:
+1. **Clone the Project**
 
-1. Install **Petra Wallet** or another Aptos-compatible wallet.
-2. Switch the wallet network to **Devnet**.
-3. Use the **Aptos Faucet** to fund your account with test tokens.
+   First, move to the folder to your local machine:
 
-## Getting Started
+   ```bash
+   cd Freelance-platform
+   ```
 
-### 1. Install Dependencies
+2. **Install Dependencies**
 
-Run the following command to install all the necessary packages:
+   Run the following command to install all necessary packages:
 
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
-### 2. Configure the Environment
+3. **Configure Environment Variables**
 
-Create a `.env` file and specify your **Aptos Devnet** or **Testnet** endpoint URLs:
+   Create a `.env` file in the root of the project and configure the following environment variables:
 
-```bash
-VITE_APP_NETWORK=testnet
-VITE_MODULE_ADDRESS="0x5fbab942388be12bc96e623fcc22d7c71bd76bede6a0b828de4c351e7aebcc1e"
-```
+   ```bash
+   VITE_MODULE_ADDRESS=0xaf12ecd9cf6578db88443a384a2d028e67ecda31cf0f441072d22201da3c0072
+   VITE_APP_NETWORK=testnet
+   ```
 
-### 3. Run the Development Server
+4. **Start the Project**
 
-Launch the application locally using the command:
+   Start the project in development mode with:
 
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
-Once the server starts, open your browser and navigate to `http://localhost:5174`.
+   The app will run at [http://localhost:5173/](http://localhost:5173/).
 
-## Interacting with the Application
+## Usage Guide
 
-1. **Connect Wallet**: On the landing page, click "Connect Wallet" to connect your **Petra Wallet** (or any Aptos-compatible wallet).
-2. **Create a Poll**: Navigate to the "Create Poll" section, fill in the poll details (e.g., question and options), and submit. This will create a poll on the blockchain.
-3. **Vote on a Poll**: Participants can vote for their preferred option by providing their DID and selecting an option from the available choices.
-4. **View Poll Results**: Users can browse through active polls and view detailed results, including the total votes for each option.
-5. **Close a Poll**: Poll creators can close polls once they decide the voting period is over.
+1. **Connect Wallet**
 
-## Tech Stack
+   - Open the app and click on the "Connect Wallet" button to link your Aptos wallet.
+   - The platform supports Aptos wallets such as Petra.
 
-- **React** (JavaScript library for building user interfaces)
-- **TypeScript** (Strongly typed JavaScript)
-- **Ant Design** (UI library for elegant and responsive components)
-- **Tailwind CSS** (Utility-first CSS framework for responsive design)
-- **Aptos SDK** (Aptos blockchain interaction)
+2. **For Clients**
 
-## Smart Contract Overview
+   - **Post a Job**: Use the "Post a Job" button to submit a new job. Enter details such as job description, payment amount (in APT), and deadline.
+   - **View Your Jobs**: Navigate to "My Jobs" to view all the jobs you’ve posted, and track their progress.
 
-The **Public Opinion Poll** smart contract manages the creation and voting of polls. Below is a summary of key functions.
+3. **For Freelancers**
 
-### Poll Management
+   - **View Jobs**: Browse available jobs posted by clients.
+   - **Apply for Jobs**: Select a job that suits you and click "Apply for Job" to accept it.
+   - **Mark Job as Completed**: Once you’ve finished the task, click "Complete Job" to notify the client.
+   - **Receive Payment**: After job completion, payment will be made in APT based on the contract agreement.
 
-1. **create_poll(account: &signer, question: string::String, options: vector<string::String>)**: Creates a new poll with the specified question and options.
-2. **vote(did: string::String, poll_id: u64, option_index: u64)**: Allows users to cast their vote on a specific poll.
-3. **close_poll(account: &signer, poll_id: u64)**: Closes the poll and prevents further voting.
-4. **get_poll_results(poll_id: u64)**: Retrieves the total votes and individual option votes for a specific poll.
-5. **get_poll(poll_id: u64)**: Fetches details about a specific poll, including the question and options.
-
-## Testing the Platform
-
-- Use the **Aptos Faucet** to fund your test accounts on **Devnet**.
-- Interactions such as creating polls and voting will trigger blockchain transactions. Ensure you have enough test tokens for gas fees.
-- Check your wallet for transaction requests when interacting with the platform.
-
-## Additional Notes
-
-- **Responsive Design**: This platform is fully responsive using **Tailwind CSS**. It supports mobile, tablet, and desktop viewports.
-- **Security**: Smart contract interactions, like creating polls and voting, require user signatures via the wallet.
-- **Custom UI**: **Ant Design** provides a user-friendly and polished experience with form validation and pre-designed UI components.
+4. **Job Management**
+   - Jobs will display their status: assigned to a freelancer, completed, or awaiting action.
+   - Clients can see if jobs are accepted or completed, and freelancers will only see jobs where no freelancer has been assigned.
