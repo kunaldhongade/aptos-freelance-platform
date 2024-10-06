@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { LaunchpadHeader } from "@/components/LaunchpadHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -25,16 +26,19 @@ export function CreateCollection() {
     description: string;
     payment_amount: number;
     is_completed: boolean;
+    is_paid: boolean;
     is_freelancer_assigned: boolean;
     is_accepted: boolean;
     job_deadline: number;
   }
 
-  useEffect(() => {
-    fetchAllJobs();
-    fetchAllJobsCreatedBy();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, jobsCreatedBy, jobs]);
+  const convertAmountFromHumanReadableToOnChain = (value: number, decimal: number) => {
+    return value * Math.pow(10, decimal);
+  };
+
+  const convertAmountFromOnChainToHumanReadable = (value: number, decimal: number) => {
+    return value / Math.pow(10, decimal);
+  };
 
   const disabledDateTime = () => {
     const now = moment();
@@ -68,11 +72,13 @@ export function CreateCollection() {
       const timestamp = Date.parse(datePicker);
       const nJob_deadline = timestamp / 1000;
 
+      const paymentAMT = convertAmountFromHumanReadableToOnChain(values.payment_amount, 8);
+
       const transaction = await signAndSubmitTransaction({
         sender: account?.address,
         data: {
           function: `${MODULE_ADDRESS}::FreelanceMarketplace::post_job`,
-          functionArguments: [jobId, values.description, values.payment_amount, nJob_deadline],
+          functionArguments: [jobId, values.description, paymentAMT, nJob_deadline],
         },
       });
 
@@ -100,7 +106,7 @@ export function CreateCollection() {
         sender: account?.address,
         data: {
           function: `${MODULE_ADDRESS}::FreelanceMarketplace::pay_freelancer`,
-          functionArguments: [values.job_id, values.payment_amount],
+          functionArguments: [values.job_id],
         },
       });
 
@@ -122,6 +128,7 @@ export function CreateCollection() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchAllJobs = async () => {
     try {
       const payload: InputViewFunctionData = {
@@ -147,7 +154,6 @@ export function CreateCollection() {
       } else {
         setJobs([]);
       }
-      console.log(jobs);
     } catch (error) {
       console.error("Failed to fetch Jobs:", error);
     }
@@ -156,7 +162,6 @@ export function CreateCollection() {
   const fetchAllJobsCreatedBy = async () => {
     try {
       const WalletAddr = account?.address;
-      console.log(WalletAddr);
       const payload: InputViewFunctionData = {
         function: `${MODULE_ADDRESS}::FreelanceMarketplace::view_jobs_by_client`,
         functionArguments: [WalletAddr],
@@ -175,6 +180,7 @@ export function CreateCollection() {
             description: (job as Job).description,
             payment_amount: (job as Job).payment_amount,
             is_completed: (job as Job).is_completed,
+            is_paid: (job as Job).is_paid,
             is_freelancer_assigned: (job as Job).is_freelancer_assigned,
             is_accepted: (job as Job).is_accepted,
             job_deadline: (job as Job).job_deadline,
@@ -183,11 +189,16 @@ export function CreateCollection() {
       } else {
         setJobsCreatedBy([]);
       }
-      console.log(jobsCreatedBy);
     } catch (error) {
       console.error("Failed to fetch Jobs by address:", error);
     }
   };
+
+  useEffect(() => {
+    fetchAllJobs();
+    fetchAllJobsCreatedBy();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, jobsCreatedBy, jobs, fetchAllJobs]);
 
   return (
     <>
@@ -265,9 +276,7 @@ export function CreateCollection() {
                 <Form.Item label="Job Id" name="job_id" rules={[{ required: true }]}>
                   <Input placeholder="Enter Job Id" />
                 </Form.Item>
-                <Form.Item label="Payment Amount" name="payment_amount" rules={[{ required: true }]}>
-                  <Input placeholder="Enter Your Amount" />
-                </Form.Item>
+
                 <Form.Item>
                   <Button variant="submit" size="lg" className="text-base w-full" type="submit">
                     Pay Freelancer
@@ -299,7 +308,8 @@ export function CreateCollection() {
                             <strong>freelancer:</strong> <Tag>{job.freelancer}</Tag>
                           </Paragraph>
                           <Paragraph>
-                            <strong>Payment:</strong> <Tag>{job.payment_amount}</Tag>
+                            <strong>Payment:</strong>{" "}
+                            <Tag>{convertAmountFromOnChainToHumanReadable(job.payment_amount, 8)}</Tag>
                           </Paragraph>
                           <Paragraph className="my-2">
                             <strong>Is Accepted:</strong>{" "}
@@ -326,6 +336,18 @@ export function CreateCollection() {
                             )}
                           </Paragraph>
                           <Paragraph className="my-2">
+                            <strong>Is Paid:</strong>{" "}
+                            {job.is_paid ? (
+                              <Tag color="green">
+                                <CheckCircleOutlined /> Yes
+                              </Tag>
+                            ) : (
+                              <Tag color="red">
+                                <CloseCircleOutlined /> No
+                              </Tag>
+                            )}
+                          </Paragraph>
+                          <Paragraph className="my-2">
                             <strong>Is Freelancer Assigned:</strong>{" "}
                             {job.is_freelancer_assigned ? (
                               <Tag color="green">
@@ -340,6 +362,16 @@ export function CreateCollection() {
                           <Paragraph>
                             <strong>End Time:</strong> {new Date(job.job_deadline * 1000).toLocaleString()}
                           </Paragraph>
+                          {job.is_completed && !job.is_paid && (
+                            <Button
+                              onClick={() => handlePayFreelancer(job)}
+                              variant="submit"
+                              size="lg"
+                              className="text-base w-full"
+                            >
+                              Pay Freelancer
+                            </Button>
+                          )}
                         </div>
                       )}
                     </Card>

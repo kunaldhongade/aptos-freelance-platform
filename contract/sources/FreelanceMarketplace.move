@@ -2,6 +2,7 @@ module my_addrx::FreelanceMarketplace {
     use std::signer;
     use std::vector;
     use aptos_framework::coin;
+    use aptos_framework::aptos_coin::{AptosCoin};
     use std::string::{String};
 
     // Error codes
@@ -22,6 +23,7 @@ module my_addrx::FreelanceMarketplace {
         description: String,
         payment_amount: u64,
         is_completed: bool,
+        is_paid: bool,
         is_accepted: bool,
         job_deadline: u64,
         is_freelancer_assigned: bool,
@@ -54,12 +56,12 @@ module my_addrx::FreelanceMarketplace {
         }
     }
 
-    // Post a new job
+    // Post a new job (payment_amount in APTOS)
     public entry fun post_job(
         client: &signer,
         job_id: u64,
         description: String,
-        payment_amount: u64,
+        payment_amount: u64, // Payment is in microAPTOS (1 APT = 1_000_000 microAPTOS)
         job_deadline: u64,
     ) acquires JobsHolder {
         let jobs_holder = borrow_global_mut<JobsHolder>(GLOBAL_JOBS_ADDRESS);
@@ -72,6 +74,7 @@ module my_addrx::FreelanceMarketplace {
             payment_amount: payment_amount,
             is_completed: false,
             is_accepted: false,
+            is_paid: false,
             job_deadline: job_deadline,
             is_freelancer_assigned: false,
         };
@@ -114,10 +117,10 @@ module my_addrx::FreelanceMarketplace {
         job_ref.is_completed = true;
     }
 
+    // Pay freelancer (using Aptos native token)
     public entry fun pay_freelancer(
         client: &signer,
-        job_id: u64,
-        payment_amount: u64 // Pass only the payment amount as u64
+        job_id: u64
     ) acquires JobsHolder {
         let jobs_holder = borrow_global_mut<JobsHolder>(GLOBAL_JOBS_ADDRESS);
         let job_index = find_job_index(job_id, jobs_holder.jobs);
@@ -129,12 +132,14 @@ module my_addrx::FreelanceMarketplace {
         let freelancer_address = job_ref.freelancer;
         assert!(freelancer_address != @0x0, ERR_UNAUTHORIZED_ACCESS);
 
-        // Ensure the amount matches the job's required payment amount
-        assert!(payment_amount == job_ref.payment_amount, ERR_PAYMENT_FAILED);
+        // Ensure payment amount matches job requirements
+        let payment_amount = job_ref.payment_amount;
 
-        // Transfer the required amount to the freelancer
-        coin::transfer<aptos_framework::aptos_coin::AptosCoin>(client, freelancer_address, payment_amount);
+        // Transfer Aptos tokens from client to freelancer
+        coin::transfer<AptosCoin>(client, freelancer_address, payment_amount);
+        job_ref.is_paid = true;
     }
+
     // Helper function to find a job by its ID
     fun find_job_index(job_id: u64, jobs: vector<Job>): u64 {
         let jobs_len = vector::length(&jobs);

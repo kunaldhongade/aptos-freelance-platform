@@ -19,6 +19,7 @@ interface Job {
   description: string;
   payment_amount: number;
   is_completed: boolean;
+  is_paid: boolean;
   is_freelancer_assigned: boolean;
   is_accepted: boolean;
   job_deadline: number;
@@ -30,6 +31,10 @@ export function MyCollections() {
   const [jobsAppliedBy, setJobsAppliedBy] = useState<Job[]>([]);
   const [jobById, setJobById] = useState<Job | null>(null);
   const [jobId, setJobId] = useState<number | null>(null);
+
+  const convertAmountFromOnChainToHumanReadable = (value: number, decimal: number) => {
+    return value / Math.pow(10, decimal);
+  };
 
   function formatTimestamp(timestamp: number) {
     const date = new Date(Number(timestamp * 1000));
@@ -43,6 +48,7 @@ export function MyCollections() {
     return returnDate;
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchAllJobs = async () => {
     try {
       const payload: InputViewFunctionData = {
@@ -64,6 +70,7 @@ export function MyCollections() {
             description: job.description,
             payment_amount: job.payment_amount,
             is_completed: job.is_completed,
+            is_paid: job.is_paid,
             is_freelancer_assigned: job.is_freelancer_assigned,
             is_accepted: job.is_accepted,
             job_deadline: job.job_deadline,
@@ -72,16 +79,15 @@ export function MyCollections() {
       } else {
         setJobs([]);
       }
-      console.log(jobs);
     } catch (error) {
       console.error("Failed to fetch Jobs:", error);
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchAllJobsAppliedBy = async () => {
     try {
       const WalletAddr = account?.address;
-      console.log(WalletAddr);
       const payload: InputViewFunctionData = {
         function: `${MODULE_ADDRESS}::FreelanceMarketplace::view_jobs_by_freelancer`,
         functionArguments: [WalletAddr],
@@ -100,6 +106,7 @@ export function MyCollections() {
             description: (job as Job).description,
             payment_amount: (job as Job).payment_amount,
             is_completed: (job as Job).is_completed,
+            is_paid: (job as Job).is_paid,
             is_freelancer_assigned: (job as Job).is_freelancer_assigned,
             is_accepted: (job as Job).is_accepted,
             job_deadline: (job as Job).job_deadline,
@@ -108,7 +115,6 @@ export function MyCollections() {
       } else {
         setJobsAppliedBy([]);
       }
-      console.log(jobsAppliedBy);
     } catch (error) {
       console.error("Failed to fetch Jobs by freelancer:", error);
     }
@@ -124,20 +130,13 @@ export function MyCollections() {
 
   const fetchJobById = async (job_id: number) => {
     try {
-      const WalletAddr = account?.address;
-      console.log(WalletAddr);
-
       const payload: InputViewFunctionData = {
         function: `${MODULE_ADDRESS}::FreelanceMarketplace::view_job_by_id`,
         functionArguments: [job_id],
       };
-
       const result = await aptosClient().view({ payload });
       const fetchedJob = result[0] as Job;
-
       setJobById(fetchedJob);
-
-      console.log(jobsAppliedBy);
     } catch (error) {
       console.error("Failed to fetch Jobs by freelancer:", error);
     }
@@ -231,7 +230,7 @@ export function MyCollections() {
     fetchAllJobs();
     fetchAllJobsAppliedBy();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, jobsAppliedBy, jobs, fetchAllJobsAppliedBy]);
+  }, [account, fetchAllJobs, jobs, fetchAllJobsAppliedBy]);
   return (
     <>
       <LaunchpadHeader title="Apply As Freelancer" />
@@ -270,7 +269,12 @@ export function MyCollections() {
                   render={(creator: string) => creator.substring(0, 6)}
                   responsive={["lg"]}
                 />
-                <Column title="Payment Amt" dataIndex="payment_amount" responsive={["lg"]} />
+                <Column
+                  title="Payment Amt"
+                  dataIndex="payment_amount"
+                  responsive={["lg"]}
+                  render={(payment_amount: number) => convertAmountFromOnChainToHumanReadable(payment_amount, 8)}
+                />
                 <Column
                   title="Is Accepted"
                   dataIndex="is_accepted"
@@ -280,6 +284,12 @@ export function MyCollections() {
                 <Column
                   title="Is Completed"
                   dataIndex="is_completed"
+                  render={(is_open: boolean) => (is_open ? "Open" : "Closed")}
+                  responsive={["md"]}
+                />
+                <Column
+                  title="Is Paid"
+                  dataIndex="is_paid"
                   render={(is_open: boolean) => (is_open ? "Open" : "Closed")}
                   responsive={["md"]}
                 />
@@ -332,11 +342,24 @@ export function MyCollections() {
                           <strong>freelancer:</strong> <Tag>{jobById.freelancer}</Tag>
                         </Paragraph>
                         <Paragraph>
-                          <strong>Payment:</strong> <Tag>{jobById.payment_amount}</Tag>
+                          <strong>Payment:</strong>{" "}
+                          <Tag>{convertAmountFromOnChainToHumanReadable(jobById.payment_amount, 8)}</Tag>
                         </Paragraph>
                         <Paragraph className="my-2">
                           <strong>Is Accepted:</strong>{" "}
                           {jobById.is_accepted ? (
+                            <Tag color="green">
+                              <CheckCircleOutlined /> Yes
+                            </Tag>
+                          ) : (
+                            <Tag color="red">
+                              <CloseCircleOutlined /> No
+                            </Tag>
+                          )}
+                        </Paragraph>
+                        <Paragraph className="my-2">
+                          <strong>Is Paid:</strong>{" "}
+                          {jobById.is_paid ? (
                             <Tag color="green">
                               <CheckCircleOutlined /> Yes
                             </Tag>
@@ -403,7 +426,8 @@ export function MyCollections() {
                             <strong>freelancer:</strong> <Tag>{job.freelancer}</Tag>
                           </Paragraph>
                           <Paragraph>
-                            <strong>Payment:</strong> <Tag>{job.payment_amount}</Tag>
+                            <strong>Payment:</strong>{" "}
+                            <Tag>{convertAmountFromOnChainToHumanReadable(job.payment_amount, 8)}</Tag>
                           </Paragraph>
                           <Paragraph className="my-2">
                             <strong>Is Accepted:</strong>{" "}
@@ -420,6 +444,18 @@ export function MyCollections() {
                           <Paragraph className="my-2">
                             <strong>Is Completed:</strong>{" "}
                             {job.is_completed ? (
+                              <Tag color="green">
+                                <CheckCircleOutlined /> Yes
+                              </Tag>
+                            ) : (
+                              <Tag color="red">
+                                <CloseCircleOutlined /> No
+                              </Tag>
+                            )}
+                          </Paragraph>
+                          <Paragraph className="my-2">
+                            <strong>Is Paid:</strong>{" "}
+                            {job.is_paid ? (
                               <Tag color="green">
                                 <CheckCircleOutlined /> Yes
                               </Tag>
@@ -488,7 +524,8 @@ export function MyCollections() {
                             <strong>freelancer:</strong> <Tag>{job.freelancer}</Tag>
                           </Paragraph>
                           <Paragraph>
-                            <strong>Payment:</strong> <Tag>{job.payment_amount}</Tag>
+                            <strong>Payment:</strong>{" "}
+                            <Tag>{convertAmountFromOnChainToHumanReadable(job.payment_amount, 8)}</Tag>
                           </Paragraph>
                           <Paragraph className="my-2">
                             <strong>Is Accepted:</strong>{" "}
@@ -505,6 +542,18 @@ export function MyCollections() {
                           <Paragraph className="my-2">
                             <strong>Is Completed:</strong>{" "}
                             {job.is_completed ? (
+                              <Tag color="green">
+                                <CheckCircleOutlined /> Yes
+                              </Tag>
+                            ) : (
+                              <Tag color="red">
+                                <CloseCircleOutlined /> No
+                              </Tag>
+                            )}
+                          </Paragraph>
+                          <Paragraph className="my-2">
+                            <strong>Is Paid:</strong>{" "}
+                            {job.is_paid ? (
                               <Tag color="green">
                                 <CheckCircleOutlined /> Yes
                               </Tag>
