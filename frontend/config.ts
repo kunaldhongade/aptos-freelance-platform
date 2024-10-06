@@ -18,9 +18,8 @@ export const config: Config = {
 
   ourStory: {
     title: "Our Story",
-    subTitle: "Innovative Opinion Platform on Aptos",
-    description:
-      "The PublicOpinionPoll smart contract allows users to create and vote on decentralized polls using DIDs for identity verification. It tracks poll details, vote counts, and results, while enabling event-based interactions on Aptos.",
+    subTitle: "Innovative freelancing Platform on Aptos",
+    description: "Our Freelancing platform offers you to create job, apply for any job and get paid.",
     discordLink: "https://discord.com",
     images: [Placeholder1, Placeholder2, Placeholder3],
   },
@@ -57,27 +56,29 @@ export const config: Config = {
 
     questions: [
       {
-        title: "Is this project is Free for creator and voter?",
-        description: "Yesss! This project is completely Free to use and you can create as many Poll as you want.",
-      },
-      {
-        title: "How To Create POLLs brief info?",
+        title: "What is this platform about?",
         description:
-          "To create a poll, connect your wallet, enter a question, options for answers, and submit. Your poll will be added to the blockchain for participants to vote.",
+          "Our platform connects freelancers with clients looking to hire talent for various jobs. Freelancers can browse available jobs, apply for those that match their skills, and get paid in Aptos tokens (APT) or other custom tokens.",
       },
       {
-        title: "How do I vote in a poll?",
+        title: "How do I create an account?",
         description:
-          "Simply choose the poll you want to participate in, select your preferred option, and submit your vote. All votes are recorded securely on the blockchain.",
+          "There's no need to create a traditional account. Just connect your Aptos wallet using Petra or any supported wallet, and you're ready to start using the platform.",
       },
       {
-        title: "Is it safe to use?",
+        title: "How do payments work on this platform?",
         description:
-          "Yes, Opinion Poll leverages blockchain security, ensuring votes cannot be tampered with and are transparently recorded.",
+          "All payments are made in Aptos tokens (APT) or custom tokens. Payments are handled through smart contracts, ensuring that freelancers get paid securely upon job completion.",
       },
       {
-        title: "Can I close a poll?",
-        description: "As a poll creator, you can close your poll when it's complete to stop further voting.",
+        title: "How do I register as a freelancer?",
+        description:
+          "Once your Aptos wallet is connected, go to the “Register as Freelancer” section and click on the registration button. This will add you to the platform's Freelancer Registry.",
+      },
+      {
+        title: "How do I get paid?",
+        description:
+          "Once you complete a job, the client will mark it as completed and initiate the payment process. The smart contract will transfer the agreed-upon amount directly to your wallet.",
       },
     ],
   },
