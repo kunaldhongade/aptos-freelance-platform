@@ -5,22 +5,23 @@ import Placeholder3 from "@/assets/placeholders/bear-3.png";
 export const config: Config = {
   // Removing one or all of these socials will remove them from the page
   socials: {
-    twitter: "https://twitter.com/kunaldhongade",
-    discord: "https://discord.com",
-    homepage: "https://kunaldhongade.vercel.app",
+    twitter: "https://twitter.com/projectfreelance",
+    discord: "https://discord.com/projectfreelance",
+    homepage: "https://projectfreelance.com",
   },
 
   defaultCollection: {
-    name: "Lorem Ipsum",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris congue convallis augue in pharetra.",
+    name: "Freelancer's Showcase",
+    description: "A collection of digital job profiles and completed works by top freelancers on our platform.",
     image: Placeholder1,
   },
 
   ourStory: {
     title: "Our Story",
-    subTitle: "Innovative freelancing Platform on Aptos",
-    description: "Our Freelancing platform offers you to create job, apply for any job and get paid.",
-    discordLink: "https://discord.com",
+    subTitle: "A Decentralized Freelancing Platform on Aptos",
+    description:
+      "Our freelancing platform allows freelancers to connect with clients, apply for jobs, and receive payments securely using the Aptos blockchain. We are reshaping the future of freelancing by ensuring transparency and security.",
+    discordLink: "https://discord.com/projectfreelance",
     images: [Placeholder1, Placeholder2, Placeholder3],
   },
 
@@ -28,24 +29,24 @@ export const config: Config = {
     title: "Our Team",
     members: [
       {
-        name: "Kunal",
-        role: "Blockchain Developer",
+        name: "Alex",
+        role: "Lead Blockchain Developer",
         img: Placeholder1,
         socials: {
-          twitter: "https://twitter.com/kunaldhongade",
+          twitter: "https://twitter.com/",
         },
       },
       {
-        name: "Soham",
-        role: "Marketing Specialist",
+        name: "Jordan",
+        role: "Head of Marketing",
         img: Placeholder2,
       },
       {
-        name: "Amrita",
+        name: "Taylor",
         role: "Community Manager",
         img: Placeholder3,
         socials: {
-          twitter: "https://twitter.com",
+          twitter: "https://twitter.com/",
         },
       },
     ],
